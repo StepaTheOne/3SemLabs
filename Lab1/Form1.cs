@@ -125,9 +125,18 @@ namespace Lab1
                     dx /= 2;
 
                 }
-                double res = Math.Round(x, eps, MidpointRounding.AwayFromZero);
-                chart.Series[1].Points.AddXY(x,Formula(x));
-                ResText.Text = res.ToString();
+                if (Formula(x + dx) > Formula(x) && Formula(x - dx) > Formula(x) && !double.IsNaN(Formula(x + dx))
+                    && !double.IsNaN(Formula(x - dx)))
+                {
+                    double res = Math.Round(x, eps, MidpointRounding.AwayFromZero);
+                    chart.Series[1].Points.AddXY(x, Formula(x));
+                    ResText.Text = res.ToString();
+                }
+                else
+                {
+                    ResText.Text = "";
+                    MessageBox.Show("Не найдено точек минимума. Видимо функция таких не имеет.");
+                }
             }
             catch (Exception ex)
             {
@@ -156,6 +165,7 @@ namespace Lab1
                     double.TryParse(AText.Text, out var ax);
                     double.TryParse(BText.Text, out var bx);
                     int.TryParse(EText.Text, out var eps);
+
                     double dx = (bx-ax)/100;
                     double a = Formula(ax);
                     double b = Formula(bx);

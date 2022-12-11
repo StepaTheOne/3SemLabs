@@ -61,20 +61,18 @@ namespace Lab2
             for (double i = a; i <= b; i+=0.1)
             {
                 var y = ResFormula(i);
-                if(y!=double.PositiveInfinity && y!= double.NegativeInfinity)
-                {
-                    chart.Series[0].Points.AddXY(i, y);
-                    if (y > maxY)
-                        maxY = y;
-                    if (y < minY)
-                        minY = y;
-                }
+                chart.Series[0].Points.AddXY(i, y);
+                if (y > maxY)
+                    maxY = y;
+                if (y < minY)
+                    minY = y;
             }
             chart.Series[1].Points.AddXY(a, minY);
             chart.Series[1].Points.AddXY(a, maxY);
 
             chart.Series[2].Points.AddXY(b, minY);
             chart.Series[2].Points.AddXY(b, maxY);
+            chart.Series[0].Points.AddXY(b, ResFormula(b));
         }
         private void Persona4Golden(double a, double b, int eps)
         {
@@ -103,9 +101,18 @@ namespace Lab2
                     x = (a + b) / 2;
                     //dx /= 2;
                 }
-                double res = Math.Round(x, eps, MidpointRounding.AwayFromZero);
-                chart.Series[1].Points.AddXY(x, ResFormula(x));
-                TextAnswer.Text = res.ToString();
+                if(ResFormula(x+dx) > ResFormula(x) && ResFormula(x-dx) > ResFormula(x) && !double.IsNaN(ResFormula(x+dx))
+                    && !double.IsNaN(ResFormula(x - dx)))
+                {
+                    double res = Math.Round(x, eps, MidpointRounding.AwayFromZero);
+                    chart.Series[3].Points.AddXY(x, ResFormula(x));
+                    TextAnswer.Text = res.ToString();
+                }
+                else
+                {
+                    MessageBox.Show("Не найдено точки минимума. Скорее всего на отрезке нет таких.");
+                    TextAnswer.Text = "";
+                }
             }
             catch (Exception ex)
             {
@@ -115,7 +122,7 @@ namespace Lab2
 
         }
 
-        private void ButtonStart_Click(object sender, EventArgs e)
+        private void calculateToolStripMenuItem_Click(object sender, EventArgs e)
         {
             try
             {
@@ -136,24 +143,47 @@ namespace Lab2
                     double dx = (bx - ax) / 100;
                     double a = ResFormula(ax);
                     double b = ResFormula(bx);
-                    while (a.Equals(double.NaN))
+                    while (a.Equals(double.NaN) || double.IsInfinity(a))
                     {
                         ax += dx;
                         a = ResFormula(ax);
                     }
-                    while (b.Equals(double.NaN))
+                    while (b.Equals(double.NaN) || double.IsInfinity(b))
                     {
                         bx -= dx;
                         b = ResFormula(bx);
                     }
 
-                    Draw(ax,bx,eps);
+                    Draw(ax, bx, eps);
                     Persona4Golden(ax, bx, eps);
                 }
             }
             catch (Exception)
             {
                 MessageBox.Show("lol.try again");
+            }
+        }
+
+        private void clearToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            chart.Series[0].Points.Clear();
+            chart.Series[1].Points.Clear();
+            chart.Series[2].Points.Clear();
+            chart.Series[3].Points.Clear();
+            TextA.Clear();
+            TextB.Clear();
+            TextPresicion.Clear();
+            TextFunc.Clear();
+            TextAnswer.Clear();
+        }
+
+        private void TextPresicion_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            char number = e.KeyChar;
+
+            if (!Char.IsDigit(number) && number != 8)
+            {
+                e.Handled = true;
             }
         }
     }
