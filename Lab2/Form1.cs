@@ -101,7 +101,7 @@ namespace Lab2
                     x = (a + b) / 2;
                     //dx /= 2;
                 }
-                if(ResFormula(x+dx) > ResFormula(x) && ResFormula(x-dx) > ResFormula(x) && !double.IsNaN(ResFormula(x+dx))
+                /*if(ResFormula(x+dx) > ResFormula(x) && ResFormula(x-dx) > ResFormula(x) && !double.IsNaN(ResFormula(x+dx))
                     && !double.IsNaN(ResFormula(x - dx)))
                 {
                     double res = Math.Round(x, eps, MidpointRounding.AwayFromZero);
@@ -112,7 +112,10 @@ namespace Lab2
                 {
                     MessageBox.Show("Не найдено точки минимума. Скорее всего на отрезке нет таких.");
                     TextAnswer.Text = "";
-                }
+                }*/
+                double res = Math.Round(x, eps, MidpointRounding.AwayFromZero);
+                chart.Series[3].Points.AddXY(x, ResFormula(x));
+                TextAnswer.Text = res.ToString();
             }
             catch (Exception ex)
             {

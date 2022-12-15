@@ -25,17 +25,14 @@ namespace Lab1
         {
             double minY = Formula(b+a/2);
             double maxY = Formula(b+a/2);
-            for (double i = a; i <= b; i+=0.1)
+            for (double i = a; i <= b; i+=0.01)
             {
                 double y = Formula(i);
-                if (y != double.NaN && y != double.NegativeInfinity && y!= double.PositiveInfinity)
-                {
-                    chart.Series[0].Points.AddXY(i, y);
-                    if (y > maxY)
-                        maxY = y;
-                    if (y < minY)
-                        minY = y;
-                }
+                chart.Series[0].Points.AddXY(i, y);
+                if (y > maxY)
+                    maxY = y;
+                if (y < minY)
+                    minY = y;
             }
             chart.Series[2].Points.AddXY(a, minY);
             chart.Series[2].Points.AddXY(a, maxY);
@@ -52,9 +49,9 @@ namespace Lab1
                 MessageBox.Show("Cringe. Поля пусты.");
                 return false;
             }
-            if(Convert.ToDouble(EText.Text) < 0)
+            if(Convert.ToDecimal(EText.Text) < 0 || Convert.ToDecimal(EText.Text) >9)
             {
-                MessageBox.Show("Точность не может быть ниже нуля???");
+                MessageBox.Show("Точность не может быть ниже нуля. А больше 9 куда ");
                 return false;
             }
             if(Convert.ToDouble(AText.Text) >= Convert.ToDouble(BText.Text))
@@ -125,8 +122,12 @@ namespace Lab1
                     dx /= 2;
 
                 }
-                if (Formula(x + dx) > Formula(x) && Formula(x - dx) > Formula(x) && !double.IsNaN(Formula(x + dx))
-                    && !double.IsNaN(Formula(x - dx)))
+                dx = 1 / (Math.Pow(10, eps));
+                /*double minCheck = Formula(x);
+                double minCheck2 = Formula(x + dx);
+                double minCheck3 = Formula(x - dx);
+                if (minCheck2 >= minCheck && minCheck3 >= minCheck)
+                   && !double.IsNaN(Formula(x + dx)) && !double.IsNaN(Formula(x - dx)))
                 {
                     double res = Math.Round(x, eps, MidpointRounding.AwayFromZero);
                     chart.Series[1].Points.AddXY(x, Formula(x));
@@ -136,7 +137,10 @@ namespace Lab1
                 {
                     ResText.Text = "";
                     MessageBox.Show("Не найдено точек минимума. Видимо функция таких не имеет.");
-                }
+                }*/
+                double res = Math.Round(x, eps, MidpointRounding.AwayFromZero);
+                chart.Series[1].Points.AddXY(x, Formula(x));
+                ResText.Text = res.ToString();
             }
             catch (Exception ex)
             {
@@ -157,6 +161,12 @@ namespace Lab1
                     chart.ChartAreas[0].AxisX.RoundAxisValues();
 
                     formula = Convert.ToString(TextFunc.Text);
+                    string checkForm = formula.Simplify().ToString();
+                    if(checkForm.Contains("tan") || checkForm.Contains("cot"))
+                    {
+                        MessageBox.Show("Тангенс и его брат не содержат экстремумов.\nТак ещё и содержат миллион бесконечностей");
+                        return;
+                    }
                     for (int i = 0; i < 4; ++i)
                     {
                         chart.Series[i].Points.Clear();
@@ -165,28 +175,33 @@ namespace Lab1
                     double.TryParse(AText.Text, out var ax);
                     double.TryParse(BText.Text, out var bx);
                     int.TryParse(EText.Text, out var eps);
+                    double y;
+                    bool check = true;
 
-                    double dx = (bx-ax)/100;
-                    double a = Formula(ax);
-                    double b = Formula(bx);
-                    while (a.Equals(double.NaN))
+                    for(double i = ax; i <= bx; i+=0.001)
                     {
-                        ax += dx;
-                        a = Formula(ax);
+                        y = Formula(i);
+                        if (double.IsNaN(y) || y.Equals(double.PositiveInfinity) || y.Equals(double.NegativeInfinity))
+                        {
+                            check = false;
+                            break;
+                        }
+                        
                     }
-                    while (b.Equals(double.NaN))
+                    if (check)
                     {
-                        bx -= dx;
-                        b = Formula(bx);
+                        Draw(ax, bx, eps);
+                        Dichotomy(ax, bx, eps);
                     }
-
-                    Draw(ax, bx, eps);
-                    Dichotomy(ax, bx, eps);
+                    else
+                    {
+                        MessageBox.Show("На интервале не должно быть разрывов или бесконечности.\nВыберите другой интервал");
+                    }
                 }
             }
             catch (Exception)
             {
-                MessageBox.Show("lol.try again");
+                MessageBox.Show("lol.try again.");
             }
         }
 
