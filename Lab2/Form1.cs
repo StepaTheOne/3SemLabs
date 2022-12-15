@@ -20,6 +20,10 @@ namespace Lab2
         }
         Entity formula;
 
+        int countList = 0;
+        double x;
+        List<double> x1_all = new List<double>();
+        List<double> x2_all = new List<double>();
         public bool Check()
         {
             if (TextA.Text == "" || TextB.Text == "" || TextFunc.Text == ""
@@ -78,7 +82,8 @@ namespace Lab2
         {
             try
             {
-                double x = (a + b) / 2;
+                
+                x = (a + b) / 2;
                 double dx = 1 / (Math.Pow(10, eps));
                 double dxe = dx;
                 double z = (3 - Math.Sqrt(5)) / 2;
@@ -86,6 +91,8 @@ namespace Lab2
                     x2 = b - z * (b - a);
                 while (Math.Abs(b - a) > dxe)
                 {
+                    x1_all.Add(x1);
+                    x2_all.Add(x2);
                     if (ResFormula(x1) > ResFormula(x2))
                     {
                         a = x1;
@@ -157,6 +164,8 @@ namespace Lab2
                         b = ResFormula(bx);
                     }
 
+                    x1_all.Clear();
+                    x2_all.Clear();
                     Draw(ax, bx, eps);
                     Persona4Golden(ax, bx, eps);
                 }
@@ -187,6 +196,35 @@ namespace Lab2
             if (!Char.IsDigit(number) && number != 8)
             {
                 e.Handled = true;
+            }
+        }
+        private void stepToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if(x1_all.Count > countList && x2_all.Count > countList)
+            {
+                chart.Series[3].Points.Clear();
+                chart.Series[3].Points.AddXY(x1_all[countList],ResFormula(x1_all[countList]));
+                chart.Series[3].Points.AddXY(x2_all[countList], ResFormula(x2_all[countList]));
+                countList++;
+            }
+            else
+            {
+                MessageBox.Show("Больше нету.");
+            }
+        }
+
+        private void stepBackToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (countList > 0 && x1_all.Count > 0 && x2_all.Count > 0)
+            {
+                countList--;
+                chart.Series[3].Points.Clear();
+                chart.Series[3].Points.AddXY(x1_all[countList], ResFormula(x1_all[countList]));
+                chart.Series[3].Points.AddXY(x2_all[countList], ResFormula(x2_all[countList]));
+            }
+            else
+            {
+                MessageBox.Show("Дальше некуда.");
             }
         }
     }

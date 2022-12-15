@@ -28,12 +28,12 @@
         /// </summary>
         private void InitializeComponent()
         {
-            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea1 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
-            System.Windows.Forms.DataVisualization.Charting.Legend legend1 = new System.Windows.Forms.DataVisualization.Charting.Legend();
-            System.Windows.Forms.DataVisualization.Charting.Series series1 = new System.Windows.Forms.DataVisualization.Charting.Series();
-            System.Windows.Forms.DataVisualization.Charting.Series series2 = new System.Windows.Forms.DataVisualization.Charting.Series();
-            System.Windows.Forms.DataVisualization.Charting.Series series3 = new System.Windows.Forms.DataVisualization.Charting.Series();
-            System.Windows.Forms.DataVisualization.Charting.Series series4 = new System.Windows.Forms.DataVisualization.Charting.Series();
+            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea2 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
+            System.Windows.Forms.DataVisualization.Charting.Legend legend2 = new System.Windows.Forms.DataVisualization.Charting.Legend();
+            System.Windows.Forms.DataVisualization.Charting.Series series5 = new System.Windows.Forms.DataVisualization.Charting.Series();
+            System.Windows.Forms.DataVisualization.Charting.Series series6 = new System.Windows.Forms.DataVisualization.Charting.Series();
+            System.Windows.Forms.DataVisualization.Charting.Series series7 = new System.Windows.Forms.DataVisualization.Charting.Series();
+            System.Windows.Forms.DataVisualization.Charting.Series series8 = new System.Windows.Forms.DataVisualization.Charting.Series();
             this.TextFunc = new System.Windows.Forms.TextBox();
             this.chart = new System.Windows.Forms.DataVisualization.Charting.Chart();
             this.TextA = new System.Windows.Forms.TextBox();
@@ -48,6 +48,8 @@
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
             this.calculateToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.clearToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.stepToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.stepBackToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             ((System.ComponentModel.ISupportInitialize)(this.chart)).BeginInit();
             this.menuStrip1.SuspendLayout();
             this.SuspendLayout();
@@ -62,43 +64,43 @@
             // 
             // chart
             // 
-            chartArea1.Name = "ChartArea1";
-            this.chart.ChartAreas.Add(chartArea1);
-            legend1.Name = "Legend1";
-            this.chart.Legends.Add(legend1);
+            chartArea2.Name = "ChartArea1";
+            this.chart.ChartAreas.Add(chartArea2);
+            legend2.Name = "Legend1";
+            this.chart.Legends.Add(legend2);
             this.chart.Location = new System.Drawing.Point(12, 91);
             this.chart.Name = "chart";
-            series1.BorderWidth = 2;
-            series1.ChartArea = "ChartArea1";
-            series1.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Spline;
-            series1.Color = System.Drawing.Color.Black;
-            series1.Legend = "Legend1";
-            series1.LegendText = "f(x)";
-            series1.Name = "Series1";
-            series2.BorderWidth = 2;
-            series2.ChartArea = "ChartArea1";
-            series2.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
-            series2.Color = System.Drawing.Color.FromArgb(((int)(((byte)(128)))), ((int)(((byte)(255)))), ((int)(((byte)(128)))));
-            series2.Legend = "Legend1";
-            series2.LegendText = "A";
-            series2.Name = "Series2";
-            series3.BorderWidth = 2;
-            series3.ChartArea = "ChartArea1";
-            series3.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
-            series3.Color = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(192)))));
-            series3.Legend = "Legend1";
-            series3.LegendText = "B";
-            series3.Name = "Series3";
-            series4.ChartArea = "ChartArea1";
-            series4.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Point;
-            series4.Color = System.Drawing.Color.Red;
-            series4.Legend = "Legend1";
-            series4.LegendText = "min X";
-            series4.Name = "Series4";
-            this.chart.Series.Add(series1);
-            this.chart.Series.Add(series2);
-            this.chart.Series.Add(series3);
-            this.chart.Series.Add(series4);
+            series5.BorderWidth = 2;
+            series5.ChartArea = "ChartArea1";
+            series5.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Spline;
+            series5.Color = System.Drawing.Color.Black;
+            series5.Legend = "Legend1";
+            series5.LegendText = "f(x)";
+            series5.Name = "Series1";
+            series6.BorderWidth = 2;
+            series6.ChartArea = "ChartArea1";
+            series6.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
+            series6.Color = System.Drawing.Color.FromArgb(((int)(((byte)(128)))), ((int)(((byte)(255)))), ((int)(((byte)(128)))));
+            series6.Legend = "Legend1";
+            series6.LegendText = "A";
+            series6.Name = "Series2";
+            series7.BorderWidth = 2;
+            series7.ChartArea = "ChartArea1";
+            series7.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
+            series7.Color = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(192)))));
+            series7.Legend = "Legend1";
+            series7.LegendText = "B";
+            series7.Name = "Series3";
+            series8.ChartArea = "ChartArea1";
+            series8.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Point;
+            series8.Color = System.Drawing.Color.Red;
+            series8.Legend = "Legend1";
+            series8.LegendText = "min X";
+            series8.Name = "Series4";
+            this.chart.Series.Add(series5);
+            this.chart.Series.Add(series6);
+            this.chart.Series.Add(series7);
+            this.chart.Series.Add(series8);
             this.chart.Size = new System.Drawing.Size(776, 347);
             this.chart.TabIndex = 4;
             this.chart.Text = "chart1";
@@ -190,7 +192,9 @@
             // 
             this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.calculateToolStripMenuItem,
-            this.clearToolStripMenuItem});
+            this.clearToolStripMenuItem,
+            this.stepToolStripMenuItem,
+            this.stepBackToolStripMenuItem});
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
             this.menuStrip1.Size = new System.Drawing.Size(800, 24);
@@ -210,6 +214,20 @@
             this.clearToolStripMenuItem.Size = new System.Drawing.Size(46, 20);
             this.clearToolStripMenuItem.Text = "Clear";
             this.clearToolStripMenuItem.Click += new System.EventHandler(this.clearToolStripMenuItem_Click);
+            // 
+            // stepToolStripMenuItem
+            // 
+            this.stepToolStripMenuItem.Name = "stepToolStripMenuItem";
+            this.stepToolStripMenuItem.Size = new System.Drawing.Size(88, 20);
+            this.stepToolStripMenuItem.Text = "Step Forward";
+            this.stepToolStripMenuItem.Click += new System.EventHandler(this.stepToolStripMenuItem_Click);
+            // 
+            // stepBackToolStripMenuItem
+            // 
+            this.stepBackToolStripMenuItem.Name = "stepBackToolStripMenuItem";
+            this.stepBackToolStripMenuItem.Size = new System.Drawing.Size(70, 20);
+            this.stepBackToolStripMenuItem.Text = "Step Back";
+            this.stepBackToolStripMenuItem.Click += new System.EventHandler(this.stepBackToolStripMenuItem_Click);
             // 
             // Form1
             // 
@@ -255,6 +273,8 @@
         private System.Windows.Forms.MenuStrip menuStrip1;
         private System.Windows.Forms.ToolStripMenuItem calculateToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem clearToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem stepToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem stepBackToolStripMenuItem;
     }
 }
 
