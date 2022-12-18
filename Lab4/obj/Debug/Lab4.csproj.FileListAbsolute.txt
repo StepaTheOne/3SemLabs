@@ -1,0 +1,11 @@
+D:\github-repositories\3SemLabs\Lab4\bin\Debug\Lab4.exe.config
+D:\github-repositories\3SemLabs\Lab4\bin\Debug\Lab4.exe
+D:\github-repositories\3SemLabs\Lab4\bin\Debug\Lab4.pdb
+D:\github-repositories\3SemLabs\Lab4\obj\Debug\Lab4.csproj.AssemblyReference.cache
+D:\github-repositories\3SemLabs\Lab4\obj\Debug\Lab4.csproj.SuggestedBindingRedirects.cache
+D:\github-repositories\3SemLabs\Lab4\obj\Debug\Lab4.Form1.resources
+D:\github-repositories\3SemLabs\Lab4\obj\Debug\Lab4.Properties.Resources.resources
+D:\github-repositories\3SemLabs\Lab4\obj\Debug\Lab4.csproj.GenerateResource.cache
+D:\github-repositories\3SemLabs\Lab4\obj\Debug\Lab4.csproj.CoreCompileInputs.cache
+D:\github-repositories\3SemLabs\Lab4\obj\Debug\Lab4.exe
+D:\github-repositories\3SemLabs\Lab4\obj\Debug\Lab4.pdb
