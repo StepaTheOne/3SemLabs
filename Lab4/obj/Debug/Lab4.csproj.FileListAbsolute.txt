@@ -9,3 +9,12 @@ D:\github-repositories\3SemLabs\Lab4\obj\Debug\Lab4.csproj.GenerateResource.cach
 D:\github-repositories\3SemLabs\Lab4\obj\Debug\Lab4.csproj.CoreCompileInputs.cache
 D:\github-repositories\3SemLabs\Lab4\obj\Debug\Lab4.exe
 D:\github-repositories\3SemLabs\Lab4\obj\Debug\Lab4.pdb
+D:\github-repositories\3SemLabs\Lab4\bin\Debug\OxyPlot.dll
+D:\github-repositories\3SemLabs\Lab4\bin\Debug\OxyPlot.WindowsForms.dll
+D:\github-repositories\3SemLabs\Lab4\bin\Debug\OxyPlot.xml
+D:\github-repositories\3SemLabs\Lab4\bin\Debug\OxyPlot.WindowsForms.xml
+D:\github-repositories\3SemLabs\Lab4\obj\Debug\Lab4.csproj.CopyComplete
+D:\github-repositories\3SemLabs\Lab4\bin\Debug\System.Runtime.CompilerServices.Unsafe.dll
+D:\github-repositories\3SemLabs\Lab4\bin\Debug\System.Threading.Tasks.Extensions.dll
+D:\github-repositories\3SemLabs\Lab4\bin\Debug\System.Runtime.CompilerServices.Unsafe.xml
+D:\github-repositories\3SemLabs\Lab4\bin\Debug\System.Threading.Tasks.Extensions.xml

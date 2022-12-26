@@ -1,4 +1,6 @@
-﻿using System;
+﻿using OxyPlot;
+using OxyPlot.Series;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -15,238 +17,150 @@ using System.Windows.Shapes;
 
 namespace TryLab3
 {
+
+
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
-    public partial class MainWindow : Window
+    public partial class MainWindow
     {
+        private PlotModel _plotModel;
+        private int polinomes = 1;
+
         public MainWindow()
         {
             InitializeComponent();
+            _plotModel = new PlotModel();
+
+            var col1 = new DataGridTextColumn();
+            col1.Binding = new Binding("x");
+            col1.Header = "X";
+
+            var col2 = new DataGridTextColumn();
+            col2.Binding = new Binding("y");
+            col2.Header = "Y";
+
+            DataGrid.Columns.Add(col1);
+            DataGrid.Columns.Add(col2);
+            RadioButton1.IsChecked = true;
         }
-        // Массивы значений Х и У задаются как свойства
-        public double[] X { get; set; }
-        public double[] Y { get; set; }
-        
-        // Искомые коэффициенты полинома в данном случае, а в общем коэфф. при функциях
-        private double[] coeff;
-        public double[] Coeff { get { return coeff; } }
-        
-        // Среднеквадратичное отклонение
-        public double? Delta { get { return getDelta(); } }
- 
-        // Конструктор класса. Примает 2 массива значений х и у
-        // Длина массивов должна быть одинакова, иначе нужно обработать исключение
-        public LSM(double[] x, double[] y)
+
+        private void SetProperty_OnClick(object sender, RoutedEventArgs e)
         {
-            if(x.Length!=y.Length) throw new ArgumentException("X and Y arrays should be equal!");
-            X = new double[x.Length];
-            Y = new double[y.Length];
-            
-            for (int i = 0; i < x.Length; i++)
+            var x = double.Parse(XBlock.Text);
+            var y = double.Parse(YBlock.Text);
+            DataGrid.Items.Add(new XY { x = x, y = y });
+
+            var point = new LineSeries
             {
-                X[i] = x[i];
-                Y[i] = y[i];
+                Color = OxyColors.Black,
+                MarkerStroke = OxyColors.Black,
+                MarkerSize = 2,
+                MarkerType = MarkerType.Circle
+            };
+            point.Points.Add(new DataPoint(x, y));
+            _plotModel.Series.Add(point);
+            PlotView.Model = _plotModel;
+        }
+
+        private void Calculate_OnClick(object sender, RoutedEventArgs e)
+        {
+            if (DataGrid.Items.Count <= polinomes)
+            {
+                MessageBox.Show("Количество точек не должно быть меньше полинома");
+                return;
             }
-        }
- 
-        // Собственно, Метод Наименьших Квадратов
-        // В качестве базисных функций используются степенные функции y = a0 * x^0 + a1 * x^1 + ... + am * x^m
-        public void Polynomial(int m)
-        {
-            if (m <= 0) throw new ArgumentException("Порядок полинома должен быть больше 0");
-            if(m>=X.Length) throw new ArgumentException("Порядок полинома должен быть на много меньше количества точек!");
-            
-            // массив для хранения значений базисных функций
-            double[,] basic = new double[X.Length,m+1];
-            
-            // заполнение массива для базисных функций
-            for (int i = 0; i < basic.GetLength(0); i++)
-                for (int j = 0; j < basic.GetLength(1); j++)
-                    basic[i, j] = Math.Pow(X[i], j);
- 
-            // Создание матрицы из массива значений базисных функций(МЗБФ)
-            Matrix basicFuncMatr = new Matrix(basic);
- 
-            // Транспонирование МЗБФ
-            Matrix transBasicFuncMatr = basicFuncMatr.Transposition();
- 
-            // Произведение транспонированного  МЗБФ на МЗБФ
-            Matrix lambda = transBasicFuncMatr*basicFuncMatr;
- 
-            // Произведение транспонированого МЗБФ на следящую матрицу 
-            Matrix beta = transBasicFuncMatr*new Matrix(Y);
- 
-            // Решение СЛАУ путем умножения обратной матрицы лямбда на бету
-            Matrix a = lambda.InverseMatrix()*beta;
-            
-            // Присвоение значения полю класса 
-            coeff = new double[a.Row];
-            for (int i = 0; i < coeff.Length; i++)
+
+            var x = new List<double>();
+            var y = new List<double>();
+            foreach (XY xy in DataGrid.Items)
             {
-                coeff[i] = a.Args[i,0];
+                x.Add(xy.x);
+                y.Add(xy.y);
             }
-        }
- 
-        // Функция нахождения среднеквадратичного отклонения
-        private double? getDelta()
-        {
-            if(coeff==null) return null;
-            double [] dif = new double[Y.Length];
-            double [] f = new double[X.Length];
-            for (int i = 0; i < X.Length; i++)
+
+            var myReg = new LSM(x.ToArray(), y.ToArray());
+            myReg.Polynomial(polinomes);
+            foreach (var coeff in myReg.Coeff)
             {
-                for (int j = 0; j < coeff.Length; j++)
+                Console.WriteLine(coeff);
+            }
+
+            Console.WriteLine(myReg.Delta);
+            Func<double, double> func;
+
+            double sumY = 0;
+            foreach (XY xy in DataGrid.Items)
+            {
+                sumY += xy.y;
+            }
+
+            double notY = sumY / DataGrid.Items.Count;
+            double SStot = 0;
+            double SSres = 0;
+            if (polinomes == 1)
+            {
+                func = (x1) =>
                 {
-                    f[i] += coeff[j] * Math.Pow(X[i], j);
-                }
-                dif[i] = Math.Pow((f[i] - Y[i]), 2);
+                    ABlock.Text = $"a = {myReg.Coeff[1].ToString()}";
+                    BBlock.Text = $"b = {myReg.Coeff[0].ToString()}";
+                    CBlock.Text = String.Empty;
+
+                    return myReg.Coeff.Last() * x1 + myReg.Coeff.First();
+                };
             }
-            return Math.Sqrt(dif.Sum()/X.Length);
+            else
+            {
+                func = (x1) =>
+                {
+                    ABlock.Text = $"a = {myReg.Coeff[2].ToString()}";
+                    BBlock.Text = $"b = {myReg.Coeff[1].ToString()}";
+                    CBlock.Text = $"c = {myReg.Coeff[0].ToString()}";
+
+                    return myReg.Coeff[2] * x1 * x1 + myReg.Coeff[1] * x1 + myReg.Coeff[0];
+                };
+            }
+
+            foreach (XY xy in DataGrid.Items)
+            {
+                SStot += (xy.y - notY) * (xy.y - notY);
+
+                SSres += (xy.y - func(xy.x)) *
+                         (xy.y - func(xy.x));
+            }
+
+            var r = Math.Sqrt(1 - (SSres / SStot));
+            if (double.IsNaN(r))
+            {
+                r = 1;
+            }
+            CoeffBlock.Text = $"determination = {r}";
+            if (_plotModel.Series.Any(series => series is FunctionSeries))
+            {
+                _plotModel.Series.Remove(_plotModel.Series.First(series => series is FunctionSeries));
+            }
+
+            var functionSeries = new FunctionSeries(func, 0, 100, 0.001);
+            _plotModel.Series.Add(functionSeries);
+            PlotView.Model = _plotModel;
+        }
+
+        private void RadioButton1_OnChecked(object sender, RoutedEventArgs e)
+        {
+            polinomes = 1;
+            RadioButton2.IsChecked = false;
+        }
+
+        private void RadioButton2_OnChecked(object sender, RoutedEventArgs e)
+        {
+            polinomes = 2;
+            RadioButton1.IsChecked = false;
         }
     }
-    
-    public class Matrix
+
+    public struct XY
     {
-        public double[,] Args { get; set; }
-        public int Row { get; set; }
-        public int Col { get; set; }
- 
-        public Matrix(double[] x)
-        {
-            Row = x.Length;
-            Col = 1;
-            Args = new double[Row,Col];
-            for (int i = 0; i < Args.GetLength(0); i++)
-                for (int j = 0; j < Args.GetLength(1); j++)
-                    Args[i, j] = x[i];
-        }
- 
-        public Matrix(double[,] x)
-        {
-            Row = x.GetLength(0);
-            Col = x.GetLength(1);
-            Args = new double[Row,Col];
-            for (int i = 0; i < Args.GetLength(0); i++)
-                for (int j = 0; j < Args.GetLength(1); j++)
-                    Args[i, j] = x[i,j];
-        }
- 
-        public Matrix(Matrix other)
-        {
-            this.Row = other.Row;
-            this.Col = other.Col;
-            Args = new double[Row, Col];
-            for (int i = 0; i < Row; i++)
-                for (int j = 0; j < Col; j++)
-                    this.Args[i, j] = other.Args[i, j];
-        }
- 
-        public override string ToString()
-        {
-            string s = string.Empty;
-            for (int i = 0; i < Args.GetLength(0); i++)
-            {
-                for (int j = 0; j < Args.GetLength(1); j++)
-                {
-                    s += string.Format("{0} ", Args[i, j]);
-                }
-                s += "\n";
-            }
-            return s;
-        }
- 
-        public Matrix Transposition()
-        {
-            double[,] t = new double[Col,Row];
-            for (int i = 0; i < Row; i++)
-                for (int j = 0; j < Col; j++)
-                    t[j, i] = Args[i, j];
-            return new Matrix(t);
-        }
- 
-        public static Matrix operator *(Matrix m, double k)
-        {
-            Matrix ans = new Matrix(m);
-            for (int i = 0; i < ans.Row; i++)
-                for (int j = 0; j < ans.Col; j++)
-                    ans.Args[i, j] = m.Args[i, j]*k;
-            return ans;
-        }
- 
-        public static Matrix operator *(Matrix m1, Matrix m2)
-        {
-            if(m1.Col != m2.Row) throw new ArgumentException("Multiplication of these two matrices can't be done!");
-            double[,] ans = new double[m1.Row, m2.Col];
-            for (int i = 0; i < m1.Row; i++)
-            {
-                for (int j = 0; j < m2.Col; j++)
-                {
-                    for (int k = 0; k < m2.Row; k++)
-                    {
-                        ans[i, j] += m1.Args[i, k] * m2.Args[k, j];
-                    }
-                }
-            }
-            return new Matrix(ans);
-        }
- 
-        private Matrix getMinor(int row, int column)
-        {
-            if (Row != Col) throw new ArgumentException("Matrix should be square!");
-            double[,] minor = new double[Row - 1, Col - 1];
-            for (int i = 0; i < this.Row; i++)
-            {
-                for (int j = 0; j < this.Col; j++)
-                {
-                    if ((i != row) || (j != column))
-                    {
-                        if (i > row && j < column) minor[i - 1, j] = this.Args[i, j];
-                        if (i < row && j > column) minor[i, j - 1] = this.Args[i, j];
-                        if (i > row && j > column) minor[i - 1, j - 1] = this.Args[i, j];
-                        if (i < row && j < column) minor[i, j] = this.Args[i, j];
-                    }
-                }
-            }
-            return new Matrix(minor);
-        }
- 
-        public static double Determ(Matrix m)
-        {
-            if (m.Row != m.Col) throw new ArgumentException("Matrix should be square!");
-            double det = 0;
-            int length = m.Row;
- 
-            if (length == 1) det = m.Args[0, 0];
-            if (length == 2) det = m.Args[0, 0]*m.Args[1, 1] - m.Args[0, 1]*m.Args[1, 0];
-            
-            if (length > 2)
-                for (int i = 0; i < m.Col; i++)
-                    det += Math.Pow(-1, 0 + i)*m.Args[0, i]*Determ(m.getMinor(0, i));
- 
-            return det;
-        }
- 
-        public Matrix MinorMatrix()
-        {
-            double [,] ans = new double[Row,Col];
- 
-            for (int i = 0; i < Row; i++)
-                for (int j = 0; j < Col; j++)
-                    ans[i, j] = Math.Pow(-1, i + j) * Determ(this.getMinor(i, j));
- 
-            return new Matrix(ans);
-        }
- 
-        public Matrix InverseMatrix()
-        {
-            if (Math.Abs(Determ(this)) <= 0.000000001) throw new ArgumentException("Inverse matrix does not exist!");
- 
-            double k = 1 / Determ(this);
- 
-            Matrix minorMatrix = this.MinorMatrix();
-            
-            return minorMatrix*k;
-        }
+        public double x { get; set; }
+        public double y { get; set; }
     }
 }

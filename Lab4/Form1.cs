@@ -30,7 +30,7 @@ namespace Lab4
 
         private async void sortToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            
+
 
             cancelTokenSource = new CancellationTokenSource();
             if (checkRandom.Checked)
@@ -53,7 +53,7 @@ namespace Lab4
                 else
                 {
                     MessageBox.Show("Ничего не введено.");
-                    return ;
+                    return;
                 }
             }
 
@@ -220,7 +220,6 @@ namespace Lab4
                     {
                         (_bubbleList[j + 1], _bubbleList[j]) = (_bubbleList[j], _bubbleList[j + 1]);
                         Invoke(new Action(() => SetList(ChartBubble, _bubbleList)));
-
                         if (cancelTokenSource.Token.IsCancellationRequested) return;
                     }
                 }
