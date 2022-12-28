@@ -7,8 +7,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using System.Windows.Forms.DataVisualization.Charting;
 using AngouriMath;
+using OxyPlot;
+using OxyPlot.WindowsForms;
+using OxyPlot.Series;
+using OxyPlot.Annotations;
 
 namespace Lab2
 {
@@ -19,8 +22,8 @@ namespace Lab2
             InitializeComponent();
         }
         Entity formula;
-        //int countList = 0;
-        //List<List<double>> n_values = new List<List<double>>();
+        List<List<List<double>>> Figures = new List<List<List<double>>>();
+        List<List<List<List<double>>>> history = new List<List<List<List<double>>>>();
 
         public bool Check()
         {
@@ -47,7 +50,7 @@ namespace Lab2
         {
             try
             {
-                return (double)(formula.Simplify().Substitute("x", x).EvalNumerical());
+                return (double)(formula.Substitute("x", x).EvalNumerical());
             }
             catch (Exception)
             {
@@ -56,42 +59,106 @@ namespace Lab2
             }
         }
 
-        void Draw(double a, double b, int eps)
+        void Draw(double a, double b)
         {
-            double minY = Formula(a);
-            double maxY = Formula(a);
-            for (double i = a; i <= b; i+=0.1)
+            PlotModel Model = new PlotModel();
+            FunctionSeries FuncLine = new FunctionSeries { Color = OxyColors.Black };
+            LineAnnotation BottomBorderLine = new LineAnnotation() { Y = 0, Color = OxyColors.Blue };
+            LineAnnotation LeftBorderLine = new LineAnnotation() { X = a, Color = OxyColors.Blue, Type = LineAnnotationType.Vertical };
+            LineAnnotation RightBorderLine = new LineAnnotation() { X = b, Color = OxyColors.Blue, Type = LineAnnotationType.Vertical };
+            double h = (b - a) / 100;
+            for (double i = a; i <= b; i += h)
             {
                 var y = Formula(i);
-                chart.Series[0].Points.AddXY(i, y);
-                if (y > maxY)
-                    maxY = y;
-                if (y < minY)
-                    minY = y;
+                if (y < -99999 || y > 99999 || double.IsNaN(y))
+                {
+                    continue;
+                }
+                else
+                {
+                    FuncLine.Points.Add(new OxyPlot.DataPoint(i, y));
+                }
+
             }
-            chart.Series[1].Points.AddXY(a, minY);
-            chart.Series[1].Points.AddXY(a, maxY);
+            foreach(List<List<double>> Figure in Figures)
+            {
+                var Event = new PolygonAnnotation();
 
-            chart.Series[2].Points.AddXY(b, minY);
-            chart.Series[2].Points.AddXY(b, maxY);
-            chart.Series[0].Points.AddXY(b, Formula(b));
+                Event.Layer = AnnotationLayer.BelowAxes;
+                Event.StrokeThickness = 1;
+                Event.Stroke = OxyColor.FromRgb(0, 0, 255);
+                Event.LineStyle = LineStyle.Automatic;
+
+                Event.Points.Add(new DataPoint(Figure[2][0], Figure[2][1]));
+                Event.Points.Add(new DataPoint(Figure[3][0], Figure[3][1]));
+                Event.Points.Add(new DataPoint(Figure[1][0], Figure[1][1]));
+                Event.Points.Add(new DataPoint(Figure[0][0], Figure[0][1]));
+
+                Model.Annotations.Add(Event);
+            }
+            Model.Annotations.Add(BottomBorderLine);
+            Model.Annotations.Add(LeftBorderLine);
+            Model.Annotations.Add(RightBorderLine);
+            Model.Series.Add(FuncLine);
+            plotView.Model = Model;
         }
-
-        private void CalcRiemann(double a, double b, int n,int eps)
+        #region Calculations
+        private double CalcRiemann(double a, double b, int n)
         {
+            Figures.Clear();
             double sum = 0, h = (b - a) / n;
 
             for (int i = 0; i < n; i++)
             {
+                //chart.Series[1].Points.AddXY(a+i, Formula(a+i));
                 sum += Math.Abs(Formula(a + h / 2 + i * h));
             }
 
             sum *= h;
-            TextAnswer.Text = Math.Round(sum, eps, MidpointRounding.AwayFromZero).ToString();
+
+            double X0 = a;
+            double X1, Y0, Y1;
+
+            for (int StepIndex = 0; StepIndex < n - 1; StepIndex++)
+            {
+                List<List<double>> Figure = new List<List<double>>();
+
+                X1 = X0 + h;
+                Y1 = Formula(X1);
+
+                List<double> PointLeftBottom = new List<double>();
+                PointLeftBottom.Add(X0);
+                PointLeftBottom.Add(0);
+
+                List<double> PointRightBottom = new List<double>();
+                PointRightBottom.Add(X1);
+                PointRightBottom.Add(0);
+
+                List<double> PointLeftTop = new List<double>();
+                PointLeftTop.Add(X0);
+                PointLeftTop.Add(Y1);
+
+                List<double> PointRightTop = new List<double>();
+                PointRightTop.Add(X1);
+                PointRightTop.Add(Y1);
+
+                Figure.Add(PointLeftTop);
+                Figure.Add(PointRightTop);
+                Figure.Add(PointLeftBottom);
+                Figure.Add(PointRightBottom);
+
+                Figures.Add(Figure);
+
+                X0 += h;
+            }
+
+            return sum;
         }
 
-        private void CalcTrapezia(double a, double b, int n,int eps)
+        private double CalcTrapezia(double a, double b, int n)
         {
+
+            Figures.Clear();
             double sum = 0;
             var h = (b - a) / n;
 
@@ -99,48 +166,85 @@ namespace Lab2
             {
                 double y1 = Formula(i);
 
-
                 if (y1 > 1000 || y1 < -1000)
                 {
                     MessageBox.Show("Значения 'Y' слишком большие");
                     continue;
                 }
                 sum += Math.Abs(Formula(i));
-                //areaSeries.Points.Add(new DataPoint(x1, y1));
-                //areaSeries.Points.Add(new DataPoint(x2, y2));
-                //areaSeries.Points.Add(new DataPoint(x2, 0));
+
 
             }
             sum +=(Math.Abs(Formula(a))+Math.Abs(Formula(b)))/2;
 
-
             sum *= h;
-            //_plotModel.Series.Add(areaSeries);
-            //SetPlotModel();
-            TextAnswer.Text = Math.Round(sum, eps, MidpointRounding.AwayFromZero).ToString();
+
+            double X0 = a;
+            double X1, Y0, Y1;
+            for (int StepIndex = 0; StepIndex < n - 1; StepIndex++)
+            {
+                List<List<double>> Figure = new List<List<double>>();
+
+                X1 = X0 + h;
+                Y0 = Formula(X0);
+                Y1 = Formula(X1);
+
+                List<double> PointLeftBottom = new List<double>();
+                PointLeftBottom.Add(X0);
+                PointLeftBottom.Add(0);
+
+                List<double> PointRightBottom = new List<double>();
+                PointRightBottom.Add(X1);
+                PointRightBottom.Add(0);
+
+                List<double> PointLeftTop = new List<double>();
+                PointLeftTop.Add(X0);
+                PointLeftTop.Add(Y0);
+
+                List<double> PointRightTop = new List<double>();
+                PointRightTop.Add(X1);
+                PointRightTop.Add(Y1);
+
+                Figure.Add(PointLeftTop);
+                Figure.Add(PointRightTop);
+                Figure.Add(PointLeftBottom);
+                Figure.Add(PointRightBottom);
+
+                Figures.Add(Figure);
+
+                X0 += h;
+            }
+
+            return sum;
         }
 
-        private void CalcSimp(double a, double b, int n,int eps)
+        private double CalcSimp(double a, double b, int n)
         {
+            Figures.Clear();
             var h = (b - a) / n;
             var sum1 = 0d;
             var sum2 = 0d;
+            //chart.Series[1].Points.AddXY(a, Formula(a));
             for (var k = 1; k <= n; k++)
             {
                 var xk = a + k * h;
+                //chart.Series[1].Points.AddXY(xk, Formula(xk));
                 if (k <= n - 1)
                 {
                     sum1 += Math.Abs(Formula(xk));
                 }
 
                 var xk_1 = a + (k - 1) * h;
+                //chart.Series[1].Points.AddXY(xk_1, Formula(xk_1));
                 sum2 += Math.Abs(Formula((xk + xk_1) / 2));
             }
 
             var result = h / 3d * (1d / 2d * Math.Abs(Formula(a)) + sum1 + 2 * sum2 + 1d / 2d * Math.Abs(Formula(b)));
             
-            TextAnswer.Text = Math.Round(result, eps, MidpointRounding.AwayFromZero).ToString();
+            //TextAnswer.Text = Math.Round(result, eps, MidpointRounding.AwayFromZero).ToString();
+            return result;
         }
+        #endregion
         /*private void Persona4Golden(double a, double b, int eps)
         {
             try
@@ -200,10 +304,12 @@ namespace Lab2
             {
                 if (Check())
                 {
-                    chart.ChartAreas[0].AxisX.RoundAxisValues();
+                    //chart.ChartAreas[0].AxisX.RoundAxisValues();
+
                     formula = Convert.ToString(TextFunc.Text);
 
-                    chart.Series[0].Points.Clear();
+                    //chart.Series[0].Points.Clear();
+                    //chart.Series[1].Points.Clear();
 
                     double.TryParse(TextA.Text, out var ax);
                     double.TryParse(TextB.Text, out var bx);
@@ -212,35 +318,71 @@ namespace Lab2
 
                     for(double i = ax; i <= bx; i += 0.1)
                     {
-                        if(double.IsNaN(Formula(i)) || double.IsInfinity(Formula(i))){
+                        double y = Formula(i);
+                        if(double.IsNaN(y) || double.IsInfinity(y)){
                             MessageBox.Show("Не должно быть разрывов любого рода");
                             return;
                         }
                     }
                     bool checkBoxes = false;
                     int n = 5;
+                    double delta, res1,res2;
                     if(checkedListBox1.SelectedIndex == 0)
                     {
-                        CalcRiemann(ax,bx,n,eps);
+                        res1 = CalcRiemann(ax,bx,n);
+                        res2 = CalcRiemann(ax, bx, 2 * n);
+                        delta = Math.Abs(res2 - res1);
+                        while(delta > 0.1 * Math.Pow(10, eps))
+                        {
+                            history.Add(Figures);
+                            n *= 2;
+                            res1 = CalcRiemann(ax, bx, n);
+                            res2 = CalcRiemann(ax, bx, 2 * n);
+                            delta = Math.Abs(res2 - res1);
+                        }
+                        TextAnswer.Text = Math.Round(res1, eps, MidpointRounding.AwayFromZero).ToString();
                         checkBoxes = true;
                     }
                     if(checkedListBox1.SelectedIndex == 1)
                     {
-                        CalcTrapezia(ax,bx,n,eps);
+
+                        res1 = CalcTrapezia(ax, bx, n);
+                        res2 = CalcTrapezia(ax, bx, 2 * n);
+                        delta = Math.Abs(res2 - res1);
+                        while (delta > 0.1 * Math.Pow(10, eps))
+                        {
+                            history.Add(Figures);
+                            n *= 2;
+                            res1 = CalcTrapezia(ax, bx, n);
+                            res2 = CalcTrapezia(ax, bx, 2 * n);
+                            delta = Math.Abs(res2 - res1);
+                        }
+                        TextAnswer.Text = Math.Round(res1, eps, MidpointRounding.AwayFromZero).ToString();
                         checkBoxes = true;
                     }
                     if(checkedListBox1.SelectedIndex == 2)
                     {
-                        CalcSimp(ax,bx,n,eps);
+                        res1 = CalcSimp(ax, bx, n);
+                        res2 = CalcSimp(ax, bx, 2 * n);
+                        delta = Math.Abs(res2 - res1);
+                        while (delta > 0.1 * Math.Pow(10, eps))
+                        {
+
+                            n *= 2;
+                            res1 = CalcSimp(ax, bx, n);
+                            res2 = CalcSimp(ax, bx, 2 * n);
+                            delta = Math.Abs(res2 - res1);
+                        }
+                        TextAnswer.Text = Math.Round(res1, eps, MidpointRounding.AwayFromZero).ToString();
                         checkBoxes = true;
                     }
-                    if (checkBoxes)
+                    if (!checkBoxes)
                     {
-                        Draw(ax, bx, eps);
+                        MessageBox.Show("Ничего не выбрано.");
                     }
                     else
                     {
-                        MessageBox.Show("Ничего не выбрано.");
+                        Draw(ax, bx);
                     }
                 }
             }
@@ -252,10 +394,14 @@ namespace Lab2
 
         private void clearToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            chart.Series[0].Points.Clear();
-            chart.Series[1].Points.Clear();
-            chart.Series[2].Points.Clear();
-            chart.Series[3].Points.Clear();
+            history.Clear();
+            Figures.Clear();
+
+            PlotModel Model = new PlotModel();
+            FunctionSeries Series = new FunctionSeries();
+            Model.Series.Add(Series);
+            plotView.Model = Model;
+
             TextA.Clear();
             TextB.Clear();
             TextPresicion.Clear();

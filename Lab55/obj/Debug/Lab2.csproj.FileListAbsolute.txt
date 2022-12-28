@@ -64,3 +64,7 @@ D:\github-repositories\3SemLabs\Lab55\bin\Debug\System.Numerics.Vectors.xml
 D:\github-repositories\3SemLabs\Lab55\bin\Debug\System.Runtime.CompilerServices.Unsafe.xml
 D:\github-repositories\3SemLabs\Lab55\bin\Debug\System.ValueTuple.xml
 D:\github-repositories\3SemLabs\Lab55\obj\Debug\Lab2.csproj.CopyComplete
+D:\github-repositories\3SemLabs\Lab55\bin\Debug\OxyPlot.dll
+D:\github-repositories\3SemLabs\Lab55\bin\Debug\OxyPlot.WindowsForms.dll
+D:\github-repositories\3SemLabs\Lab55\bin\Debug\OxyPlot.xml
+D:\github-repositories\3SemLabs\Lab55\bin\Debug\OxyPlot.WindowsForms.xml
