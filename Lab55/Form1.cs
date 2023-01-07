@@ -22,8 +22,10 @@ namespace Lab2
             InitializeComponent();
         }
         Entity formula;
-        List<List<List<double>>> Figures = new List<List<List<double>>>();
+        //List<List<List<double>>> Figures = new List<List<List<double>>>();
         List<List<List<List<double>>>> history = new List<List<List<List<double>>>>();
+        int historyCount = 0;
+        double globalA, globalB, globalN;
 
         public bool Check()
         {
@@ -33,9 +35,9 @@ namespace Lab2
                 MessageBox.Show("Cringe");
                 return false;
             }
-            if (Convert.ToDouble(TextPresicion.Text) < 0 || Convert.ToDouble(TextPresicion.Text) > 9)
+            if (Convert.ToDouble(TextPresicion.Text) < 0 || Convert.ToDouble(TextPresicion.Text) > 5)
             {
-                MessageBox.Show("Точность не может быть ниже нуля или больше 9. Куда столько ?");
+                MessageBox.Show("Точность не может быть ниже нуля или больше 5. Куда столько ?");
                 return false;
             }
             if (Convert.ToDouble(TextA.Text) >= Convert.ToDouble(TextB.Text))
@@ -59,7 +61,7 @@ namespace Lab2
             }
         }
 
-        void Draw(double a, double b)
+        void Draw(double a, double b, List<List<List<double>>> Figures)
         {
             PlotModel Model = new PlotModel();
             FunctionSeries FuncLine = new FunctionSeries { Color = OxyColors.Black };
@@ -102,29 +104,22 @@ namespace Lab2
             Model.Series.Add(FuncLine);
             plotView.Model = Model;
         }
-        #region Calculations
-        private double CalcRiemann(double a, double b, int n)
+        #region GetPoints
+        private List<List<List<double>>> PointsRiemann(double a, double b, int n)
         {
-            Figures.Clear();
-            double sum = 0, h = (b - a) / n;
+            List<List<List<double>>> Figures = new List<List<List<double>>>();
 
-            for (int i = 0; i < n; i++)
-            {
-                //chart.Series[1].Points.AddXY(a+i, Formula(a+i));
-                sum += Math.Abs(Formula(a + h / 2 + i * h));
-            }
-
-            sum *= h;
+            double h = (b - a) / n;
 
             double X0 = a;
             double X1, Y0, Y1;
 
-            for (int StepIndex = 0; StepIndex < n - 1; StepIndex++)
+            for (int StepIndex = 0; StepIndex < n; StepIndex++)
             {
                 List<List<double>> Figure = new List<List<double>>();
 
                 X1 = X0 + h;
-                Y1 = Formula(X1);
+                Y1 = Formula((X1+X0)/2);
 
                 List<double> PointLeftBottom = new List<double>();
                 PointLeftBottom.Add(X0);
@@ -151,37 +146,18 @@ namespace Lab2
 
                 X0 += h;
             }
-
-            return sum;
+            return Figures;
         }
 
-        private double CalcTrapezia(double a, double b, int n)
+        private List<List<List<double>>> PointsTrapezia(double a, double b, int n)
         {
+            List<List<List<double>>> Figures = new List<List<List<double>>>();
 
-            Figures.Clear();
-            double sum = 0;
-            var h = (b - a) / n;
-
-            for (double i = a+h; i <= b-h; i += h)
-            {
-                double y1 = Formula(i);
-
-                if (y1 > 1000 || y1 < -1000)
-                {
-                    MessageBox.Show("Значения 'Y' слишком большие");
-                    continue;
-                }
-                sum += Math.Abs(Formula(i));
-
-
-            }
-            sum +=(Math.Abs(Formula(a))+Math.Abs(Formula(b)))/2;
-
-            sum *= h;
+            double h = (b - a) / n;
 
             double X0 = a;
             double X1, Y0, Y1;
-            for (int StepIndex = 0; StepIndex < n - 1; StepIndex++)
+            for (int StepIndex = 0; StepIndex < n; StepIndex++)
             {
                 List<List<double>> Figure = new List<List<double>>();
 
@@ -214,13 +190,52 @@ namespace Lab2
 
                 X0 += h;
             }
+            return Figures;
+        }
+
+        #endregion
+        #region Calculations
+        private double CalcRiemann(double a, double b, int n)
+        {
+            double sum = 0, h = (b - a) / n;
+
+            for (int i = 0; i < n; i++)
+            {
+                sum += Math.Abs(Formula(a + h / 2 + i * h));
+            }
+
+            sum *= h;
+
+            return sum;
+        }
+
+        private double CalcTrapezia(double a, double b, int n)
+        {
+            double sum = 0;
+            var h = (b - a) / n;
+
+            for (double i = a+h; i <= b-h; i += h)
+            {
+                double y1 = Formula(i);
+
+                if (y1 > 1000 || y1 < -1000)
+                {
+                    MessageBox.Show("Значения 'Y' слишком большие");
+                    continue;
+                }
+                sum += Math.Abs(Formula(i));
+
+
+            }
+            sum +=(Math.Abs(Formula(a))+Math.Abs(Formula(b)))/2;
+
+            sum *= h;
 
             return sum;
         }
 
         private double CalcSimp(double a, double b, int n)
         {
-            Figures.Clear();
             var h = (b - a) / n;
             var sum1 = 0d;
             var sum2 = 0d;
@@ -245,58 +260,6 @@ namespace Lab2
             return result;
         }
         #endregion
-        /*private void Persona4Golden(double a, double b, int eps)
-        {
-            try
-            {
-                x = (a + b) / 2;
-                double dx = 1 / (Math.Pow(10, eps));
-                double dxe = dx;
-                double z = (3 - Math.Sqrt(5)) / 2;
-                double x1 = a + z * (b - a), 
-                    x2 = b - z * (b - a);
-                while (Math.Abs(b - a) > dxe)
-                {
-                    x1_all.Add(x1);
-                    x2_all.Add(x2);
-                    if (ResFormula(x1) > ResFormula(x2))
-                    {
-                        a = x1;
-                        x1 = x2;
-                        x2 = a + b - x1;
-                    }
-                    else
-                    {
-                        b = x2;
-                        x2 = x1;
-                        x1 = a + b - x2;
-                    }
-                    x = (a + b) / 2;
-                    //dx /= 2;
-                }
-                /*if(ResFormula(x+dx) > ResFormula(x) && ResFormula(x-dx) > ResFormula(x) && !double.IsNaN(ResFormula(x+dx))
-                    && !double.IsNaN(ResFormula(x - dx)))
-                {
-                    double res = Math.Round(x, eps, MidpointRounding.AwayFromZero);
-                    chart.Series[3].Points.AddXY(x, ResFormula(x));
-                    TextAnswer.Text = res.ToString();
-                }
-                else
-                {
-                    MessageBox.Show("Не найдено точки минимума. Скорее всего на отрезке нет таких.");
-                    TextAnswer.Text = "";
-                }
-                double res = Math.Round(x, eps, MidpointRounding.AwayFromZero);
-                chart.Series[3].Points.AddXY(x, ResFormula(x));
-                TextAnswer.Text = res.ToString();
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show("" + ex.Message, "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
-
-
-        }*/
 
         private void calculateToolStripMenuItem_Click(object sender, EventArgs e)
         {
@@ -304,37 +267,31 @@ namespace Lab2
             {
                 if (Check())
                 {
-                    //chart.ChartAreas[0].AxisX.RoundAxisValues();
 
                     formula = Convert.ToString(TextFunc.Text);
-
-                    //chart.Series[0].Points.Clear();
-                    //chart.Series[1].Points.Clear();
 
                     double.TryParse(TextA.Text, out var ax);
                     double.TryParse(TextB.Text, out var bx);
                     int.TryParse(TextPresicion.Text, out var eps);
-                    //double dx = Math.Pow(0.1, eps);
 
-                    for(double i = ax; i <= bx; i += 0.1)
-                    {
-                        double y = Formula(i);
-                        if(double.IsNaN(y) || double.IsInfinity(y)){
-                            MessageBox.Show("Не должно быть разрывов любого рода");
-                            return;
-                        }
-                    }
+                    globalA = ax;
+                    globalB = bx;
+
                     bool checkBoxes = false;
                     int n = 5;
                     double delta, res1,res2;
                     if(checkedListBox1.SelectedIndex == 0)
                     {
+                        List<List<List<double>>> Points = new List<List<List<double>>>();
+                        Points = PointsRiemann(ax, bx,n);
+                        history.Add(Points);
                         res1 = CalcRiemann(ax,bx,n);
                         res2 = CalcRiemann(ax, bx, 2 * n);
                         delta = Math.Abs(res2 - res1);
-                        while(delta > 0.1 * Math.Pow(10, eps))
+                        while(delta/3 > Math.Pow(0.1,eps))
                         {
-                            history.Add(Figures);
+                            Points = PointsRiemann(ax, bx, n);
+                            history.Add(Points);
                             n *= 2;
                             res1 = CalcRiemann(ax, bx, n);
                             res2 = CalcRiemann(ax, bx, 2 * n);
@@ -345,13 +302,17 @@ namespace Lab2
                     }
                     if(checkedListBox1.SelectedIndex == 1)
                     {
+                        List<List<List<double>>> Points = new List<List<List<double>>>();
 
                         res1 = CalcTrapezia(ax, bx, n);
                         res2 = CalcTrapezia(ax, bx, 2 * n);
+                        Points = PointsTrapezia(ax, bx, n);
+                        history.Add(Points);
                         delta = Math.Abs(res2 - res1);
-                        while (delta > 0.1 * Math.Pow(10, eps))
+                        while (delta/3 > Math.Pow(0.1, eps))
                         {
-                            history.Add(Figures);
+                            Points = PointsTrapezia(ax, bx, n);
+                            history.Add(Points);
                             n *= 2;
                             res1 = CalcTrapezia(ax, bx, n);
                             res2 = CalcTrapezia(ax, bx, 2 * n);
@@ -365,7 +326,7 @@ namespace Lab2
                         res1 = CalcSimp(ax, bx, n);
                         res2 = CalcSimp(ax, bx, 2 * n);
                         delta = Math.Abs(res2 - res1);
-                        while (delta > 0.1 * Math.Pow(10, eps))
+                        while (delta/3 > Math.Pow(0.1, eps))
                         {
 
                             n *= 2;
@@ -376,26 +337,26 @@ namespace Lab2
                         TextAnswer.Text = Math.Round(res1, eps, MidpointRounding.AwayFromZero).ToString();
                         checkBoxes = true;
                     }
+                    historyCount = history.Count;
                     if (!checkBoxes)
                     {
                         MessageBox.Show("Ничего не выбрано.");
                     }
                     else
                     {
-                        Draw(ax, bx);
+                        Draw(ax, bx,history[historyCount-1]);
                     }
                 }
             }
             catch (Exception)
             {
-                MessageBox.Show("lol.try again");
+                MessageBox.Show("Проверьте корректность ввода.\nТак же в границах интервала не должно быть разрывов");
             }
         }
 
         private void clearToolStripMenuItem_Click(object sender, EventArgs e)
         {
             history.Clear();
-            Figures.Clear();
 
             PlotModel Model = new PlotModel();
             FunctionSeries Series = new FunctionSeries();
@@ -423,6 +384,32 @@ namespace Lab2
         {
             for (int ix = 0; ix < checkedListBox1.Items.Count; ++ix)
                 if (ix != e.Index) checkedListBox1.SetItemChecked(ix, false);
+        }
+
+        private void stepForwardToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (historyCount < history.Count-1 && history.Count > 0)
+            {
+                historyCount++;
+                Draw(globalA, globalB, history[historyCount]);
+            }
+            else
+            {
+                MessageBox.Show("Дальше некуда");
+            }
+        }
+
+        private void stepBackToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if(historyCount > 0 && history.Count > 0)
+            {
+                historyCount--;
+                Draw(globalA, globalB, history[historyCount]);
+            }
+            else
+            {
+                MessageBox.Show("Дальше некуда");
+            }
         }
     }
 }

@@ -43,6 +43,8 @@
             this.clearToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.checkedListBox1 = new System.Windows.Forms.CheckedListBox();
             this.plotView = new OxyPlot.WindowsForms.PlotView();
+            this.stepForwardToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.stepBackToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -141,7 +143,9 @@
             // 
             this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.calculateToolStripMenuItem,
-            this.clearToolStripMenuItem});
+            this.clearToolStripMenuItem,
+            this.stepForwardToolStripMenuItem,
+            this.stepBackToolStripMenuItem});
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
             this.menuStrip1.Size = new System.Drawing.Size(800, 24);
@@ -186,6 +190,20 @@
             this.plotView.ZoomHorizontalCursor = System.Windows.Forms.Cursors.SizeWE;
             this.plotView.ZoomRectangleCursor = System.Windows.Forms.Cursors.SizeNWSE;
             this.plotView.ZoomVerticalCursor = System.Windows.Forms.Cursors.SizeNS;
+            // 
+            // stepForwardToolStripMenuItem
+            // 
+            this.stepForwardToolStripMenuItem.Name = "stepForwardToolStripMenuItem";
+            this.stepForwardToolStripMenuItem.Size = new System.Drawing.Size(85, 20);
+            this.stepForwardToolStripMenuItem.Text = "StepForward";
+            this.stepForwardToolStripMenuItem.Click += new System.EventHandler(this.stepForwardToolStripMenuItem_Click);
+            // 
+            // stepBackToolStripMenuItem
+            // 
+            this.stepBackToolStripMenuItem.Name = "stepBackToolStripMenuItem";
+            this.stepBackToolStripMenuItem.Size = new System.Drawing.Size(67, 20);
+            this.stepBackToolStripMenuItem.Text = "StepBack";
+            this.stepBackToolStripMenuItem.Click += new System.EventHandler(this.stepBackToolStripMenuItem_Click);
             // 
             // Form1
             // 
@@ -232,6 +250,8 @@
         private System.Windows.Forms.ToolStripMenuItem clearToolStripMenuItem;
         private System.Windows.Forms.CheckedListBox checkedListBox1;
         private OxyPlot.WindowsForms.PlotView plotView;
+        private System.Windows.Forms.ToolStripMenuItem stepForwardToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem stepBackToolStripMenuItem;
     }
 }
 
